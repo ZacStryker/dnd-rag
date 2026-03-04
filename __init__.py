@@ -8,6 +8,7 @@ from flask import Blueprint, Response, jsonify, render_template, request, stream
 PROJECT_META = {
     'id': 'rag-chatbot',
     'name': 'D&D RAG',
+    'full_name': 'Dungeons & Dragons Retrieval-Augmented Generation',
     'description': 'Ask anything about D&D 5e. Semantic search across the Dungeon Master\'s Guide and Player\'s Handbook retrieves relevant rules, then Claude AI synthesizes a cited answer.',
     'icon': 'auto_stories',
     'color': '#6366f1',
