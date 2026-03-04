@@ -1,0 +1,5 @@
+data/dmg.pdf
+data/phb.pdf
+data/vectors.db
+__pycache__/
+*.pyc

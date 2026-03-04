@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Dungeons & Dragons Retrieval-Augmented Generation — Zac Stryker{% endblock %}
+
+{% block content %}
+<div class="page-rag-chatbot">
+    <div id="app-data"
+         data-status-url="{{ url_for('rag_chatbot.status') }}"
+         data-chat-url="{{ url_for('rag_chatbot.chat') }}"
+         data-anthropic-status-url="{{ url_for('rag_chatbot.anthropic_status') }}"></div>
+
+    <div class="project-header">
+        <a class="back-link" href="{{ url_for('projects') }}">&#8592; Projects</a>
+        <div class="project-title-row">
+            <h1>Dungeons &amp; Dragons Retrieval-Augmented Generation</h1>
+        </div>
+        <p class="subtitle">Ask anything about D&amp;D 5e rules — semantic search retrieves relevant passages from the DMG &amp; PHB, then Claude synthesizes a cited answer.</p>
+    </div>
+
+    <div class="main-card">
+        <div class="status-row">
+            <div class="metric-badge" id="indexBadge">
+                <span class="badge-dot"></span>
+                <span class="label">Index</span>
+                <span class="value" id="statusText">Checking…</span>
+            </div>
+            <div class="metric-badge" id="apiBadge">
+                <span class="badge-dot"></span>
+                <span class="label">Claude</span>
+                <span class="value" id="apiStatusText">Checking…</span>
+            </div>
+            <div class="metric-badge" id="ragBadge">
+                <span class="badge-dot"></span>
+                <span class="label">RAG Status</span>
+                <span class="value" id="ragStatusText">Checking…</span>
+            </div>
+        </div>
+
+        <div id="errorBanner" class="error-banner"></div>
+
+        <div id="initPanel" class="init-panel">
+            <div class="spinner"></div>
+            <p id="initMsg">Indexing D&amp;D rulebooks…</p>
+        </div>
+
+        <div id="chatUI" style="display:none">
+            <div id="messages"></div>
+
+            <div id="suggestions">
+                <p>Try asking:</p>
+                <div class="chips">
+                    <button class="chip" data-q="What are the rules for death saving throws, and how should a DM handle permanent character death?">Death saves &amp; PC death</button>
+                    <button class="chip" data-q="How do rests work for players, and what variant rest rules does the DMG offer for different campaign paces?">Rest rules &amp; variants</button>
+                    <button class="chip" data-q="What are the spellcasting rules for players, and how should a DM adjudicate concentration checks and counterspell?">Spellcasting &amp; DM adjudication</button>
+                    <button class="chip" data-q="How do magic items work for players, and how should a DM decide when and how to distribute them?">Magic items &amp; distribution</button>
+                    <button class="chip" data-q="What actions can players take in combat, and what tools does the DMG give DMs to make fights more dynamic?">Combat actions &amp; encounter design</button>
+                    <button class="chip" data-q="What are the multiclassing rules for players, and what guidance does the DMG give DMs on allowing or restricting it?">Multiclassing &amp; DM guidance</button>
+                </div>
+            </div>
+
+            <div class="chat-input-row">
+                <input type="text" id="questionInput" placeholder="Ask about D&amp;D rules…" maxlength="400" />
+                <button id="sendBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- README -->
+    <div class="overview-card">
+        <h3>README.md</h3>
+        <p>Ask natural language questions about D&amp;D 5th Edition rules. Semantic search retrieves the most relevant passages from the Dungeon Master's Guide and Player's Handbook, then Claude AI synthesizes a cited answer grounded exclusively in the source text.</p>
+
+        <h4>RAG Pipeline</h4>
+        <ol>
+            <li><strong>Embed question</strong> &mdash; encoded into a 384-dim vector by <code>all-MiniLM-L6-v2</code> running locally, no API call, ~50ms</li>
+            <li><strong>Semantic search</strong> &mdash; cosine similarity search across ~5,500 pre-indexed chunks from the DMG &amp; PHB via <code>sqlite-vec</code>; returns top-5 passages</li>
+            <li><strong>Generate answer</strong> &mdash; retrieved passages sent to Claude Haiku with a strict prompt: answer only from the provided context and cite page numbers inline</li>
+            <li><strong>Stream + cite</strong> &mdash; response streams token-by-token via SSE; source citations show exactly which book and page each answer draws from</li>
+        </ol>
+
+        <h4>Tech Stack</h4>
+        <ul>
+            <li><strong>sentence-transformers</strong> &mdash; <code>all-MiniLM-L6-v2</code> for local embeddings; 80MB, 384-dim, no API key needed</li>
+            <li><strong>sqlite-vec</strong> &mdash; vector store as a single <code>.db</code> file; zero infrastructure, survives restarts</li>
+            <li><strong>Claude Haiku 3.5</strong> &mdash; fast and cheap (~$0.001/query), 200K context window, streaming via Anthropic SDK</li>
+            <li><strong>pypdf</strong> &mdash; page-aware PDF extraction; each page treated as a chunk unit</li>
+            <li><strong>Flask</strong> &mdash; Blueprint with <code>/api/status</code> and <code>/api/chat</code> SSE endpoints; background thread handles indexing on startup</li>
+        </ul>
+
+        <h4>Knowledge Base</h4>
+        <ul>
+            <li><strong>DMG</strong> &mdash; Dungeon Master's Guide (5e): world-building, encounter design, magic items, monster creation</li>
+            <li><strong>PHB</strong> &mdash; Player's Handbook (5e): character classes, spells, combat rules, equipment</li>
+        </ul>
+        <p>Combined: ~5,500 chunks. Each chunk stores its source label and page number for citations.</p>
+
+        <h4>Design Decisions</h4>
+        <ul>
+            <li><strong>Local embeddings over API</strong> &mdash; eliminates a second API dependency; ~50ms on CPU with no per-query cost</li>
+            <li><strong>sqlite-vec over ChromaDB/FAISS</strong> &mdash; ~5,500 vectors fits comfortably in a single SQLite file; no separate process or serialization complexity</li>
+            <li><strong>Top-5 chunks</strong> &mdash; ~7,500 chars of context per query; well within Haiku's 200K token window while keeping cost and latency low</li>
+            <li><strong>Haiku over Sonnet</strong> &mdash; for well-structured RAG prompts where the answer is in the context, Haiku performs comparably at 10× lower cost</li>
+        </ul>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('rag_chatbot.static', filename='script.js') }}"></script>
+{% endblock %}
