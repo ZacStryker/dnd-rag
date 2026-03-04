@@ -9,7 +9,7 @@ PROJECT_META = {
     'id': 'rag-chatbot',
     'name': 'D&D RAG',
     'full_name': 'Dungeons & Dragons Retrieval-Augmented Generation',
-    'description': 'Ask anything about D&D 5e. Semantic search across the Dungeon Master\'s Guide and Player\'s Handbook retrieves relevant rules, then Claude AI synthesizes a cited answer.',
+    'description': 'Ask anything about D&D 5e. Semantic search across the Dungeon Master\'s Guide, Player\'s Handbook, and Monster Manual retrieves relevant rules, then Claude AI synthesizes a cited answer.',
     'icon': 'auto_stories',
     'color': '#6366f1',
     'category': 'Retrieval-Augmented Generation',
@@ -33,6 +33,7 @@ _DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 _SOURCES = [
     {'filename': 'dmg.pdf', 'label': 'DMG'},
     {'filename': 'phb.pdf', 'label': 'PHB'},
+    {'filename': 'mm.pdf',  'label': 'MM'},
 ]
 
 # Shared state for background indexing
@@ -173,10 +174,10 @@ def chat():
 
     from .services.embeddings import encode_query
     from .services.llm import stream_answer
-    from .services.vectorstore import search
+    from .services.vectorstore import search_per_source
 
     query_vec = encode_query(question)
-    chunks = search(query_vec, top_k=5)
+    chunks = search_per_source(query_vec, top_k_per_source=2)
     sources = [
         {'page': c['page'], 'source': c['source'], 'text': c['text'][:350], 'score': c['score']}
         for c in chunks

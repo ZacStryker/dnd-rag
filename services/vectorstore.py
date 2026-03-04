@@ -84,6 +84,34 @@ def search(query_embedding: np.ndarray, top_k: int = 5) -> list[dict]:
     ]
 
 
+def search_per_source(query_embedding: np.ndarray, top_k_per_source: int = 2) -> list[dict]:
+    """Return top-k chunks per source, sorted by relevance within each source."""
+    sources = get_indexed_sources()
+    db = _connect()
+    results = []
+    for source in sources:
+        rows = db.execute("""
+            SELECT c.id, c.text, c.page_number, c.source, knn.distance
+            FROM (
+                SELECT rowid, distance
+                FROM chunk_embeddings
+                WHERE embedding MATCH ?
+                ORDER BY distance
+                LIMIT ?
+            ) knn
+            JOIN chunks c ON c.id = knn.rowid AND c.source = ?
+            ORDER BY knn.distance
+            LIMIT ?
+        """, (_serialize(query_embedding), 200, source, top_k_per_source)).fetchall()
+        results.extend(rows)
+    db.close()
+    results.sort(key=lambda r: r[4])
+    return [
+        {'id': r[0], 'text': r[1], 'page': r[2], 'source': r[3], 'score': round(float(r[4]), 4)}
+        for r in results
+    ]
+
+
 def get_indexed_sources() -> set[str]:
     """Return the set of source labels currently in the DB."""
     if not os.path.exists(_db_path()):

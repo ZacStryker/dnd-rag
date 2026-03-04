@@ -15,7 +15,7 @@
             <h1>Dungeons &amp; Dragons Retrieval-Augmented Generation</h1>
             <a href="https://github.com/ZacStryker/dnd-rag" target="_blank" rel="noopener" class="project-repo-link" aria-label="View on GitHub"><svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
         </div>
-        <p class="subtitle">Ask anything about D&amp;D 5e rules — semantic search retrieves relevant passages from the DMG &amp; PHB, then Claude synthesizes a cited answer.</p>
+        <p class="subtitle">Ask anything about D&amp;D 5e rules — semantic search retrieves relevant passages from the DMG, PHB &amp; MM, then Claude synthesizes a cited answer.</p>
     </div>
 
     <div class="main-card">
@@ -54,8 +54,9 @@
                     <button class="chip" data-q="How do rests work for players, and what variant rest rules does the DMG offer for different campaign paces?">Rest rules &amp; variants</button>
                     <button class="chip" data-q="What are the spellcasting rules for players, and how should a DM adjudicate concentration checks and counterspell?">Spellcasting &amp; DM adjudication</button>
                     <button class="chip" data-q="How do magic items work for players, and how should a DM decide when and how to distribute them?">Magic items &amp; distribution</button>
-                    <button class="chip" data-q="What actions can players take in combat, and what tools does the DMG give DMs to make fights more dynamic?">Combat actions &amp; encounter design</button>
+                    <button class="chip" data-q="What are the abilities and lore of dragons, and how should a DM run a dragon encounter using their lair actions and legendary actions?">Dragons: lore &amp; encounter design</button>
                     <button class="chip" data-q="What are the multiclassing rules for players, and what guidance does the DMG give DMs on allowing or restricting it?">Multiclassing &amp; DM guidance</button>
+                    <button class="chip" data-q="How do undead monsters like liches and vampires work mechanically, and what does the DMG say about running them as villains?">Undead villains: liches &amp; vampires</button>
                 </div>
             </div>
 
@@ -92,13 +93,14 @@
         <ul>
             <li><strong>DMG</strong> &mdash; Dungeon Master's Guide (5e): world-building, encounter design, magic items, monster creation</li>
             <li><strong>PHB</strong> &mdash; Player's Handbook (5e): character classes, spells, combat rules, equipment</li>
+            <li><strong>MM</strong> &mdash; Monster Manual (5e): monster stat blocks, lore, creature abilities, and encounter guidance</li>
         </ul>
-        <p>Combined: ~5,500 chunks. Each chunk stores its source label and page number for citations.</p>
+        <p>Combined: ~8,400 chunks across all three books. Each chunk stores its source label and page number for citations.</p>
 
         <h4>Design Decisions</h4>
         <ul>
             <li><strong>Local embeddings over API</strong> &mdash; eliminates a second API dependency; ~50ms on CPU with no per-query cost</li>
-            <li><strong>sqlite-vec over ChromaDB/FAISS</strong> &mdash; ~5,500 vectors fits comfortably in a single SQLite file; no separate process or serialization complexity</li>
+            <li><strong>sqlite-vec over ChromaDB/FAISS</strong> &mdash; ~8,000 vectors fits comfortably in a single SQLite file; no separate process or serialization complexity</li>
             <li><strong>Top-5 chunks</strong> &mdash; ~7,500 chars of context per query; well within Haiku's 200K token window while keeping cost and latency low</li>
             <li><strong>Haiku over Sonnet</strong> &mdash; for well-structured RAG prompts where the answer is in the context, Haiku performs comparably at 10× lower cost</li>
             <li><strong>Backend proxy for API status</strong> &mdash; fetches <code>status.anthropic.com/api/v2/status.json</code> server-side to avoid CORS; synthesized RAG Status badge turns green only when both the index and Claude API are fully operational</li>

@@ -12,7 +12,7 @@ _SYSTEM_PROMPT = (
     'Help Dungeon Masters and players understand the rules, lore, and guidance '
     'in the official D&D 5e books.\n\n'
     'Answer questions based ONLY on the provided context passages. '
-    'Cite sources inline using the format [DMG p. X] or [PHB p. X]. '
+    'Cite sources inline using the format [DMG p. X], [PHB p. X], or [MM p. X]. '
     'If the answer is not in the provided context, say: '
     '"I couldn\'t find that in the provided sections — try rephrasing or '
     'asking about a related topic." '
@@ -32,7 +32,7 @@ def stream_answer(question: str, chunks: list[dict]) -> Generator[str, None, Non
     context = '\n\n---\n\n'.join(
         f'[{c["source"]} p. {c["page"]}]\n{c["text"]}' for c in chunks
     )
-    user_message = f'Context from the DMG:\n\n{context}\n\nQuestion: {question}'
+    user_message = f'Context from the rulebooks:\n\n{context}\n\nQuestion: {question}'
 
     params = {
         'model': 'claude-haiku-4-5-20251001',

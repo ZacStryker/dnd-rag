@@ -1,6 +1,6 @@
 # D&D RAG
 
-Ask natural language questions about D&D 5th Edition rules. Semantic search retrieves the most relevant passages from the Dungeon Master's Guide and Player's Handbook, then Claude AI synthesizes a cited answer grounded exclusively in the source text.
+Ask natural language questions about D&D 5th Edition rules. Semantic search retrieves the most relevant passages from the Dungeon Master's Guide, Player's Handbook, and Monster Manual, then Claude AI synthesizes a cited answer grounded exclusively in the source text.
 
 ## How It Works
 
@@ -40,8 +40,9 @@ This is the standard RAG (Retrieval-Augmented Generation) pattern: retrieve rele
 |--------|-------|---------|
 | Dungeon Master's Guide (5e) | DMG | World-building, encounter design, magic items, monster creation |
 | Player's Handbook (5e) | PHB | Character classes, spells, combat rules, equipment |
+| Monster Manual (5e) | MM | Monster stat blocks, lore, creature abilities, encounter guidance |
 
-Combined: ~5,500 chunks across both books.
+Combined: ~8,400 chunks across all three books.
 
 ## Chunking Strategy
 
@@ -55,7 +56,7 @@ Combined: ~5,500 chunks across both books.
 `all-MiniLM-L6-v2` loads once into ~80MB of RAM and runs at ~50ms/query on CPU. Eliminates a second API dependency, zero cost, and no round-trip latency for the embedding step.
 
 **Why sqlite-vec instead of ChromaDB or FAISS?**
-The knowledge base is ~5,500 vectors — small enough that a single SQLite file is the right tool. No separate process, no serialization complexity, survives restarts, trivial to back up.
+The knowledge base is ~8,400 vectors — small enough that a single SQLite file is the right tool. No separate process, no serialization complexity, survives restarts, trivial to back up.
 
 **Why top-5 chunks instead of more?**
 At 1,500 chars/chunk, top-5 puts ~7,500 characters of context into the prompt — well within Haiku's 200K token window while keeping cost and latency low. More chunks can be passed without issue if needed.
