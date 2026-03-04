@@ -32,6 +32,7 @@ This is the standard RAG (Retrieval-Augmented Generation) pattern: retrieve rele
 | LLM | Anthropic Claude Haiku 3.5 | Fast, cheap (~$0.001/query), 200K context window |
 | PDF processing | pypdf | Lightweight, page-aware extraction |
 | Streaming | Flask SSE + Anthropic streaming SDK | Token-by-token response for responsive UX |
+| Status dashboard | Anthropic Status API proxy | Live Index, Claude API, and synthesized RAG Status badges |
 
 ## Knowledge Base
 
@@ -61,6 +62,9 @@ At 1,500 chars/chunk, top-5 puts ~7,500 characters of context into the prompt â€
 
 **Why Claude Haiku and not Sonnet?**
 For a well-structured RAG prompt where the answer is in the context, Haiku performs comparably to Sonnet at 10x lower cost. Sonnet is worth the upgrade for reasoning-heavy tasks; this is primarily a retrieval + synthesis task.
+
+**Live status dashboard**
+Three metric badges show the current state at a glance: **Index** (chunk count), **Claude** (live API status fetched via a backend proxy to `status.anthropic.com/api/v2/status.json`, avoiding CORS), and **RAG Status** (synthesized â€” green only when both the index is ready and the Claude API is fully operational, yellow for degraded, red if either is down). The proxy polls every 60 seconds.
 
 ## Project Structure
 

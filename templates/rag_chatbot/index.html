@@ -85,7 +85,7 @@
             <li><strong>sqlite-vec</strong> &mdash; vector store as a single <code>.db</code> file; zero infrastructure, survives restarts</li>
             <li><strong>Claude Haiku 3.5</strong> &mdash; fast and cheap (~$0.001/query), 200K context window, streaming via Anthropic SDK</li>
             <li><strong>pypdf</strong> &mdash; page-aware PDF extraction; each page treated as a chunk unit</li>
-            <li><strong>Flask</strong> &mdash; Blueprint with <code>/api/status</code> and <code>/api/chat</code> SSE endpoints; background thread handles indexing on startup</li>
+            <li><strong>Flask</strong> &mdash; Blueprint with <code>/api/status</code>, <code>/api/chat</code> SSE, and <code>/api/anthropic-status</code> proxy endpoints; background thread handles indexing on startup</li>
         </ul>
 
         <h4>Knowledge Base</h4>
@@ -101,6 +101,7 @@
             <li><strong>sqlite-vec over ChromaDB/FAISS</strong> &mdash; ~5,500 vectors fits comfortably in a single SQLite file; no separate process or serialization complexity</li>
             <li><strong>Top-5 chunks</strong> &mdash; ~7,500 chars of context per query; well within Haiku's 200K token window while keeping cost and latency low</li>
             <li><strong>Haiku over Sonnet</strong> &mdash; for well-structured RAG prompts where the answer is in the context, Haiku performs comparably at 10× lower cost</li>
+            <li><strong>Backend proxy for API status</strong> &mdash; fetches <code>status.anthropic.com/api/v2/status.json</code> server-side to avoid CORS; synthesized RAG Status badge turns green only when both the index and Claude API are fully operational</li>
         </ul>
     </div>
 
