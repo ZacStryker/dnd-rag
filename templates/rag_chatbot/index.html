@@ -2,6 +2,20 @@
 
 {% block title %}Dungeons & Dragons Retrieval-Augmented Generation — Zac Stryker{% endblock %}
 
+{% block head_extra %}
+<style>
+/* ── Project accent tokens ────────────────────────────────────── */
+:root {
+    --project-accent:        #6366f1;
+    --project-accent-text:   #a5b4fc;
+    --project-accent-bg:     rgba(99, 102, 241, 0.08);
+    --project-accent-active: rgba(99, 102, 241, 0.18);
+    --project-accent-rim:    rgba(99, 102, 241, 0.25);
+}
+.back-link:hover { color: var(--project-accent-text); }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-rag-chatbot">
     <div id="app-data"
@@ -21,31 +35,31 @@
     <div class="main-card">
         <div class="status-row">
             <div class="metric-badge" id="indexBadge">
-                <span class="badge-dot"></span>
+                <span class="badge-dot" aria-hidden="true"></span>
                 <span class="label">Index</span>
-                <span class="value" id="statusText">Checking…</span>
+                <span class="value" id="statusText" aria-live="polite">Checking…</span>
             </div>
             <div class="metric-badge" id="apiBadge">
-                <span class="badge-dot"></span>
+                <span class="badge-dot" aria-hidden="true"></span>
                 <span class="label">Claude</span>
-                <span class="value" id="apiStatusText">Checking…</span>
+                <span class="value" id="apiStatusText" aria-live="polite">Checking…</span>
             </div>
             <div class="metric-badge" id="ragBadge">
-                <span class="badge-dot"></span>
-                <span class="label">RAG Status</span>
-                <span class="value" id="ragStatusText">Checking…</span>
+                <span class="badge-dot" aria-hidden="true"></span>
+                <span class="label">Pipeline</span>
+                <span class="value" id="ragStatusText" aria-live="polite">Checking…</span>
             </div>
         </div>
 
         <div id="errorBanner" class="error-banner"></div>
 
         <div id="initPanel" class="init-panel">
-            <div class="spinner"></div>
-            <p id="initMsg">Indexing D&amp;D rulebooks…</p>
+            <div class="spinner" aria-hidden="true"></div>
+            <p id="initMsg" role="status" aria-live="polite">Indexing D&amp;D rulebooks…</p>
         </div>
 
         <div id="chatUI" style="display:none">
-            <div id="messages"></div>
+            <div id="messages" aria-live="polite" aria-label="Conversation"></div>
 
             <div id="suggestions">
                 <p>Try asking:</p>
@@ -61,8 +75,14 @@
             </div>
 
             <div class="chat-input-row">
+                <label for="questionInput" class="sr-only">Ask a D&amp;D rules question</label>
                 <input type="text" id="questionInput" placeholder="Ask about D&amp;D rules…" maxlength="400" />
-                <button id="sendBtn">Send</button>
+                <button id="sendBtn" class="action-btn">
+                    <span class="action-btn-inner">
+                        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        Send
+                    </span>
+                </button>
             </div>
         </div>
     </div>
